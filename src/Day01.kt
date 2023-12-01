@@ -11,26 +11,19 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        // weird replacement to maintain strings with shared chars e.g 'oneight'
+        // weird replacement map to maintain strings with shared chars e.g 'oneight'
         val spelledDigits = mapOf("one" to "1one", "two" to "2two", "three" to "3three", "four" to "4four",
             "five" to "5five", "six" to "6six", "seven" to "7seven", "eight" to "8eight", "nine" to "9nine")
         var sum = 0
         for (line in input) {
-            val firstSpelledDigitPair = line.findAnyOf(spelledDigits.keys)
-            val lastSpelledDigitPair = line.findLastAnyOf(spelledDigits.keys)
+            var mutableLine = line
+            val firstSpelledDigit = line.findAnyOf(spelledDigits.keys)?.second
+            firstSpelledDigit?.let { key -> mutableLine = mutableLine.replaceFirst(key, spelledDigits[key]!!) }
 
-            var updatedLine = line
-            if (firstSpelledDigitPair != null) {
-                updatedLine = updatedLine.replaceFirst(firstSpelledDigitPair.second,
-                    spelledDigits[firstSpelledDigitPair.second] ?: "")
-            }
+            val lastSpelledDigit = line.findLastAnyOf(spelledDigits.keys)?.second
+            lastSpelledDigit?.let { key -> mutableLine = mutableLine.replace(key, spelledDigits[key]!!) }
 
-            if (lastSpelledDigitPair != null) {
-                updatedLine = updatedLine.replace(lastSpelledDigitPair.second,
-                    spelledDigits[lastSpelledDigitPair.second] ?: "")
-            }
-
-            val digits = updatedLine.filter { it.isDigit() }
+            val digits = mutableLine.filter { it.isDigit() }
             val firstDigit = digits[0].digitToInt()
             val secondDigit = digits[digits.length-1].digitToInt()
             sum += (firstDigit * 10) + secondDigit
