@@ -8,21 +8,9 @@ fun main() {
             for (cubeColor in round.split(", ")) {
                 val (amount, colour) = cubeColor.split(" ")
                 when (colour) {
-                    "red" -> {
-                        if (amount.toInt() > rMax) {
-                            return false
-                        }
-                    }
-                    "green" -> {
-                        if (amount.toInt() > gMAx) {
-                            return false
-                        }
-                    }
-                    "blue" -> {
-                        if (amount.toInt() > bMax) {
-                            return false
-                        }
-                    }
+                    "red" -> if (amount.toInt() > rMax) return false
+                    "green" -> if (amount.toInt() > gMAx) return false
+                    "blue" -> if (amount.toInt() > bMax) return false
                 }
             }
         }
@@ -31,16 +19,9 @@ fun main() {
     }
 
     fun part1(input: List<String>): Int {
-        var sumIDs = 0
-
-        for ((i, game) in input.withIndex()) {
-            val gameData = game.split(": ").last()
-            if (isGamePossible(gameData)) {
-                sumIDs += (i + 1)
-            }
+        return input.withIndex().sumOf { (gameID, gameData) ->
+            if (isGamePossible((gameData.split(": ").last()))) (gameID + 1) else 0
         }
-
-        return sumIDs
     }
 
     fun calculatePowerSum(gameData: String): Int {
@@ -53,21 +34,9 @@ fun main() {
                 val (amount, colour) = cubeColour.split(" ")
                 val num = amount.toInt()
                 when (colour) {
-                    "red" -> {
-                        if (num > requiredReds) {
-                            requiredReds = num
-                        }
-                    }
-                    "green" -> {
-                        if (num > requiredGreens) {
-                            requiredGreens = num
-                        }
-                    }
-                    "blue" -> {
-                        if (num > requiredBlues) {
-                            requiredBlues = num
-                        }
-                    }
+                    "red" -> if (num > requiredReds) requiredReds = num
+                    "green" -> if (num > requiredGreens) requiredGreens = num
+                    "blue" -> if (num > requiredBlues) requiredBlues = num
                 }
             }
         }
@@ -76,12 +45,9 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        var powerSum = 0
-        for (game in input) {
-            val gameData = game.split(": ").last()
-            powerSum += calculatePowerSum(gameData)
+        return input.sumOf { game ->
+            calculatePowerSum(game.split(": ").last())
         }
-        return powerSum
     }
 
     var testInput = readInput("Day02_test")
