@@ -2,11 +2,19 @@ import java.math.BigInteger
 import java.security.MessageDigest
 import kotlin.io.path.Path
 import kotlin.io.path.readLines
+import kotlin.system.exitProcess
 
 /**
  * Reads lines from the given input txt file.
  */
-fun readInput(name: String) = Path("src/$name.txt").readLines()
+fun readInput(name: String): List<String> {
+    try {
+        return Path("src/input_files/$name.txt").readLines()
+    } catch (e: Exception) {
+        System.err.println("[ ERROR ] Failed to open file: $name\n└╴(${e.javaClass})")
+        exitProcess(1)
+    }
+}
 
 /**
  * Converts string to md5 hash.
