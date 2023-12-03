@@ -1,106 +1,84 @@
 fun main() {
     fun part1(input: List<String>): Int {
-        var sum = 0
+        val numberRanges = ArrayList<Triple<Int, Int, IntRange>>()
+        val symbolLocations = ArrayList<Pair<Int, Int>>()
+
         for ((y, line) in input.withIndex()) {
-            var x = 0
-            loop@ while (x < line.length) {
-                var char = line[x]
+            var currentNumber = ""
+            var startIndex = 0
+
+            for ((x, char) in line.withIndex()) {
                 if (char.isDigit()) {
-                    val pos = x
-                    var numberString = char.toString()
-                    x++
-                    if (x >= line.length - 1) {
-                        break
+                    if (currentNumber.isEmpty()) {
+                        startIndex = x
                     }
-                    char = line[x]
-                    while (char.isDigit()) {
-                        char = line[x]
-                        numberString += char
-                        x++
+                    currentNumber += char
 
-                        if (x > line.length - 1) {
-                            break
-                        }
-                        char = line[x]
+                    if (x == line.length - 1) {
+                        numberRanges.add(Triple(currentNumber.toInt(), y, IntRange(startIndex, x)))
+                    }
+                } else {
+                    if (currentNumber.isNotEmpty()) {
+                        numberRanges.add(Triple(currentNumber.toInt(), y, IntRange(startIndex, x - 1)))
+                        currentNumber = ""
+                        startIndex = 0
                     }
 
-                    // get number bounds
-                    val xMin = (pos - 1).coerceAtLeast(0)
-                    val xMax = x.coerceAtMost(line.length - 1)
-                    val yMin = (y - 1).coerceAtLeast(0)
-                    val yMax = (y + 1).coerceAtMost(input.size - 1)
-
-                    for (symbolSearchY in yMin..yMax) {
-                        for (symbolSearchX in xMin..xMax) {
-                            if (symbolSearchY == y && symbolSearchX >= pos && symbolSearchX < x) {
-                                continue
-                            }
-
-                            val inspectionChar = input[symbolSearchY][symbolSearchX]
-                            if (inspectionChar in charArrayOf('@', '#', '$', '%', '&', '*', '-', '+', '=', '/')) {
-                                sum += numberString.toInt()
-                                continue@loop
-                            }
-                        }
+                    if (char != '.') {
+                        symbolLocations.add(Pair(y, x))
                     }
                 }
-                x++
             }
         }
-        return sum
+
+        return symbolLocations.sumOf { symbol ->
+            numberRanges.filter { numberRange ->
+                numberRange.second in (symbol.first - 1..symbol.first + 1) &&
+                (symbol.second - 1..symbol.second + 1).overlaps(numberRange.third)
+            }.sumOf { it.first }
+        }
     }
 
     fun part2(input: List<String>): Int {
-        var gearSum = 0
+        val numberRanges = ArrayList<Triple<Int, Int, IntRange>>()
+        val asteriskLocations = ArrayList<Pair<Int, Int>>()
 
         for ((y, line) in input.withIndex()) {
-            var x = 0
-            while (x < line.length) {
-                val char = line[x]
-                if (char == '*') {
-                    val xMin = (x - 1).coerceAtLeast(0)
-                    val xMax = (x + 1).coerceAtMost(line.length - 1)
-                    val yMin = (y - 1).coerceAtLeast(0)
-                    val yMax = (y + 1).coerceAtMost(input.size - 1)
+            var currentNumber = ""
+            var startIndex = 0
 
-                    val attachedNumbers = ArrayList<Int>()
-                    for (numberSearchY in yMin..yMax) {
-                        var numberSearchX = xMin
-                        while (numberSearchX <= xMax) {
-                            if (numberSearchX == x && numberSearchY == y) {
-                                numberSearchX++
-                                continue
-                            }
+            for ((x, char) in line.withIndex()) {
+                if (char.isDigit()) {
+                    if (currentNumber.isEmpty()) {
+                        startIndex = x
+                    }
+                    currentNumber += char
 
-                            if (input[numberSearchY][numberSearchX].isDigit()) {
-                                var startIndex = numberSearchX
-
-                                while (startIndex > 0 && input[numberSearchY][startIndex-1].isDigit()) {
-                                    startIndex--
-                                }
-
-                                var endIndex = startIndex
-                                while (endIndex < line.length-1 && input[numberSearchY][endIndex+1].isDigit()) {
-                                    endIndex++
-                                }
-
-                                attachedNumbers.add(input[numberSearchY].substring(startIndex, endIndex+1).toInt())
-                                numberSearchX = endIndex + 1
-                            }
-
-                            numberSearchX++
-                        }
+                    if (x == line.length - 1) {
+                        numberRanges.add(Triple(currentNumber.toInt(), y, IntRange(startIndex, x)))
+                    }
+                } else {
+                    if (currentNumber.isNotEmpty()) {
+                        numberRanges.add(Triple(currentNumber.toInt(), y, IntRange(startIndex, x - 1)))
+                        currentNumber = ""
+                        startIndex = 0
                     }
 
-                    if (attachedNumbers.size == 2) {
-                        gearSum += (attachedNumbers[0] * attachedNumbers[1])
+                    if (char == '*') {
+                        asteriskLocations.add(Pair(y, x))
                     }
                 }
-                x++
             }
         }
 
-        return gearSum
+        return asteriskLocations.sumOf { symbol ->
+            val touching = numberRanges.filter { numberRange ->
+                numberRange.second in (symbol.first - 1..symbol.first + 1) &&
+                (symbol.second - 1..symbol.second + 1).overlaps(numberRange.third)
+            }
+
+            if (touching.size == 2) touching[0].first * touching[1].first else 0
+        }
     }
 
     val testInput = readInput("Day03_test")
