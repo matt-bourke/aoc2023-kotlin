@@ -25,7 +25,7 @@ fun main() {
 
         for ((index, card) in cards.withIndex()) {
             for (i in 1..card.first) {
-                cards[index+i] = Pair(cards[index+i].first, cards[index+i].second + card.second)
+                cards[index + i] = Pair(cards[index + i].first, cards[index + i].second + card.second)
             }
         }
 
