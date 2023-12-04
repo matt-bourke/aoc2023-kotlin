@@ -1,48 +1,30 @@
+import kotlin.math.floor
+import kotlin.math.pow
+
 fun main() {
+    fun String.extractNumbers(): List<Int> {
+        return this.trim().replace("  ", " ").split(" ").map { it.toInt() }
+    }
+
+    fun matches(card: String): Int {
+        val (winningNumbers, myNumbers) = (card.split(": ")[1]).split(" | ").map { it.extractNumbers() }
+        return myNumbers.count { it in winningNumbers }
+    }
+
     fun part1(input: List<String>): Int {
-        var sum = 0
-        for (line in input) {
-            val numbers = line.split(": ")[1]
-            val (winningNumbers, myNumbers) = numbers.split(" | ")
-            val winningNumbersList = winningNumbers.trim().replace("  ", " ").split(" ").map { it.toInt() }
-            val myNumbersList = myNumbers.trim().replace("  ", " ").split(" ").map { it.toInt() }
-
-            var score = 0
-            for (number in myNumbersList) {
-                if (number in winningNumbersList) {
-                    if (score == 0) {
-                        score = 1
-                    } else {
-                        score *= 2
-                    }
-                }
-            }
-            sum += score
+        return input.sumOf { card ->
+            floor((2.0).pow(matches(card) - 1)).toInt()
         }
-
-        return sum
     }
 
     fun part2(input: List<String>): Int {
         val cards = ArrayList<Pair<Int, Int>>() // number of matches, number of cards
-        for (line in input) {
-            val numbers = line.split(": ")[1]
-            val (winningNumbers, myNumbers) = numbers.split(" | ")
-            val winningNumbersList = winningNumbers.trim().replace("  ", " ").split(" ").map { it.toInt() }
-            val myNumbersList = myNumbers.trim().replace("  ", " ").split(" ").map { it.toInt() }
-
-            var matches = 0
-            for (number in myNumbersList) {
-                if (number in winningNumbersList) {
-                    matches++
-                }
-            }
-            cards.add(Pair(matches, 1))
+        for (card in input) {
+            cards.add(Pair(matches(card), 1))
         }
 
         for ((index, card) in cards.withIndex()) {
-            val matches = card.first
-            for (i in 1..matches) {
+            for (i in 1..card.first) {
                 cards[index+i] = Pair(cards[index+i].first, cards[index+i].second + card.second)
             }
         }
