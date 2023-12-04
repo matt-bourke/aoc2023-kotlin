@@ -1,4 +1,3 @@
-import kotlin.math.floor
 import kotlin.math.pow
 
 fun main() {
@@ -13,7 +12,7 @@ fun main() {
 
     fun part1(input: List<String>): Int {
         return input.sumOf { card ->
-            floor((2.0).pow(matches(card) - 1)).toInt()
+            (2.0).pow(matches(card) - 1).toInt()
         }
     }
 
