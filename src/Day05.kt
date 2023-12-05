@@ -29,74 +29,25 @@ fun main() {
     fun part1(input: String): Long {
         val sections = input.split("\r\n\r\n")
         val seeds = parseSeedsPart1(sections[0])
-        val seedToSoil = parseMapSection(sections[1])
-        val soilToFertiliser = parseMapSection(sections[2])
-        val fertiliserToWater = parseMapSection(sections[3])
-        val waterToLight = parseMapSection(sections[4])
-        val lightToTemperature = parseMapSection(sections[5])
-        val temperatureToHumidity = parseMapSection(sections[6])
-        val humidityToLocation = parseMapSection(sections[7])
+        val mapTransforms = ArrayList<List<Triple<Long, Long, Long>>>()
+        for (i in 1..<sections.size) {
+            mapTransforms.add(parseMapSection(sections[i]))
+        }
 
         var minLocation = Long.MAX_VALUE
         for (seed in seeds) {
-            var soil = seed
-            for (soilMap in seedToSoil) {
-                if (seed in soilMap.second..<(soilMap.second + soilMap.third)) {
-                    soil = soilMap.first + (seed - soilMap.second)
-                    break
+            var transformedValue = seed
+            for (transformationRanges in mapTransforms) {
+                for (transform in transformationRanges) {
+                    if (transformedValue in transform.second..<(transform.second + transform.third)) {
+                        transformedValue = transform.first + (transformedValue - transform.second)
+                        break
+                    }
                 }
             }
 
-            var fertiliser = soil
-            for (fertiliserMap in soilToFertiliser) {
-                if (soil in fertiliserMap.second..<(fertiliserMap.second + fertiliserMap.third)) {
-                    fertiliser = fertiliserMap.first + (soil - fertiliserMap.second)
-                    break
-                }
-            }
-
-            var water = fertiliser
-            for (waterMap in fertiliserToWater) {
-                if (fertiliser in waterMap.second..<(waterMap.second + waterMap.third)) {
-                    water = waterMap.first + (fertiliser - waterMap.second)
-                    break
-                }
-            }
-
-            var light = water
-            for (lightMap in waterToLight) {
-                if (water in lightMap.second..<(lightMap.second + lightMap.third)) {
-                    light = lightMap.first + (water - lightMap.second)
-                    break
-                }
-            }
-
-            var temperature = light
-            for (temperatureMap in lightToTemperature) {
-                if (light in temperatureMap.second..<(temperatureMap.second + temperatureMap.third)) {
-                    temperature = temperatureMap.first + (light - temperatureMap.second)
-                    break
-                }
-            }
-
-            var humidity = temperature
-            for (humidityMap in temperatureToHumidity) {
-                if (temperature in humidityMap.second..<(humidityMap.second + humidityMap.third)) {
-                    humidity = humidityMap.first + (temperature - humidityMap.second)
-                    break
-                }
-            }
-
-            var location = humidity
-            for (locationMap in humidityToLocation) {
-                if (humidity in locationMap.second..<(locationMap.second + locationMap.third)) {
-                    location = locationMap.first + (humidity - locationMap.second)
-                    break
-                }
-            }
-
-            if (location < minLocation) {
-                minLocation = location
+            if (transformedValue < minLocation) {
+                minLocation = transformedValue
             }
         }
 
@@ -106,86 +57,31 @@ fun main() {
     fun part2(input: String): Long {
         val sections = input.split("\r\n\r\n")
         val seedRanges = parseSeedsPart2(sections[0])
-        val seedToSoil = parseMapSection(sections[1])
-        val soilToFertiliser = parseMapSection(sections[2])
-        val fertiliserToWater = parseMapSection(sections[3])
-        val waterToLight = parseMapSection(sections[4])
-        val lightToTemperature = parseMapSection(sections[5])
-        val temperatureToHumidity = parseMapSection(sections[6])
-        val humidityToLocation = parseMapSection(sections[7])
-
-        var globalMinimumLocation = Long.MAX_VALUE
-        for (seedRange in seedRanges) {
-            println("Beginning range $seedRange")
-            var minLocation = Long.MAX_VALUE
-            for (seed in seedRange) {
-                var soil = seed
-                for (soilMap in seedToSoil) {
-                    if (seed in soilMap.second..<(soilMap.second + soilMap.third)) {
-                        soil = soilMap.first + (seed - soilMap.second)
-                        break
-                    }
-                }
-
-                var fertiliser = soil
-                for (fertiliserMap in soilToFertiliser) {
-                    if (soil in fertiliserMap.second..<(fertiliserMap.second + fertiliserMap.third)) {
-                        fertiliser = fertiliserMap.first + (soil - fertiliserMap.second)
-                        break
-                    }
-                }
-
-                var water = fertiliser
-                for (waterMap in fertiliserToWater) {
-                    if (fertiliser in waterMap.second..<(waterMap.second + waterMap.third)) {
-                        water = waterMap.first + (fertiliser - waterMap.second)
-                        break
-                    }
-                }
-
-                var light = water
-                for (lightMap in waterToLight) {
-                    if (water in lightMap.second..<(lightMap.second + lightMap.third)) {
-                        light = lightMap.first + (water - lightMap.second)
-                        break
-                    }
-                }
-
-                var temperature = light
-                for (temperatureMap in lightToTemperature) {
-                    if (light in temperatureMap.second..<(temperatureMap.second + temperatureMap.third)) {
-                        temperature = temperatureMap.first + (light - temperatureMap.second)
-                        break
-                    }
-                }
-
-                var humidity = temperature
-                for (humidityMap in temperatureToHumidity) {
-                    if (temperature in humidityMap.second..<(humidityMap.second + humidityMap.third)) {
-                        humidity = humidityMap.first + (temperature - humidityMap.second)
-                        break
-                    }
-                }
-
-                var location = humidity
-                for (locationMap in humidityToLocation) {
-                    if (humidity in locationMap.second..<(locationMap.second + locationMap.third)) {
-                        location = locationMap.first + (humidity - locationMap.second)
-                        break
-                    }
-                }
-
-                if (location < minLocation) {
-                    minLocation = location
-                }
-
-                if (minLocation < globalMinimumLocation) {
-                    globalMinimumLocation = minLocation
-                }
-            }
+        val mapTransforms = ArrayList<List<Triple<Long, Long, Long>>>()
+        for (i in 1..<sections.size) {
+            mapTransforms.add(parseMapSection(sections[i]))
         }
 
-        return globalMinimumLocation
+        val chunkSize = 1000000
+        var iteration = 0
+        while (true) {
+            for (i in (iteration * chunkSize).toULong()..<((iteration + 1) * chunkSize).toULong()) {
+                var transformedValue = i.toLong()
+                for (transformationRanges in mapTransforms.reversed()) {
+                    for (transform in transformationRanges) {
+                        if (transformedValue in transform.first..<(transform.first + transform.third)) {
+                            transformedValue = transformedValue - transform.first + transform.second
+                            break
+                        }
+                    }
+                }
+
+                if (seedRanges.any { it.contains(transformedValue) }) {
+                    return i.toLong()
+                }
+            }
+            iteration++
+        }
     }
 
     val testInput = Path("src/input_files/Day05_test.txt").readText()
