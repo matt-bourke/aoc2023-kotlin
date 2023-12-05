@@ -1,12 +1,14 @@
 import kotlin.io.path.Path
 import kotlin.io.path.readText
+import kotlin.math.max
+import kotlin.math.min
 
 fun main() {
     fun parseSeedsPart1(input: String): List<Long> {
         return input.split(": ")[1].split(" ").map{ it.toLong() }
     }
 
-    fun parseSeedsPart2(input: String): List<LongRange> {
+    fun parseSeedsPart2(input: String): ArrayList<LongRange> {
         val seedRanges = ArrayList<LongRange>()
         val seedNumbers = input.split(": ")[1].split(" ").map{ it.toLong() }
         val seedPairs = seedNumbers.size / 2
@@ -56,32 +58,46 @@ fun main() {
 
     fun part2(input: String): Long {
         val sections = input.split("\r\n\r\n")
-        val seedRanges = parseSeedsPart2(sections[0])
+        var seedRanges = parseSeedsPart2(sections[0])
         val mapTransforms = ArrayList<List<Triple<Long, Long, Long>>>()
         for (i in 1..<sections.size) {
             mapTransforms.add(parseMapSection(sections[i]))
         }
 
-        val chunkSize = 1000000
-        var iteration = 0
-        while (true) {
-            for (i in (iteration * chunkSize).toULong()..<((iteration + 1) * chunkSize).toULong()) {
-                var transformedValue = i.toLong()
-                for (transformationRanges in mapTransforms.reversed()) {
-                    for (transform in transformationRanges) {
-                        if (transformedValue in transform.first..<(transform.first + transform.third)) {
-                            transformedValue = transformedValue - transform.first + transform.second
-                            break
+        for (mapTransform in mapTransforms) {
+            val nextTransformedSeedRange = ArrayList<LongRange>()
+            val remainderSeedRange = ArrayList<LongRange>()
+            for (transformationMap in mapTransform) {
+                remainderSeedRange.clear()
+                val transformationRangeEnd = transformationMap.second + transformationMap.third
+                val transformationDifference = transformationMap.first - transformationMap.second
+                for (seedRange in seedRanges) {
+                    if (seedRange.last < transformationMap.second ||
+                        seedRange.first > transformationRangeEnd) {
+                        remainderSeedRange.add(seedRange)
+                    } else {
+                        val minOverlap = max(seedRange.first, transformationMap.second)
+                        val maxOverlap = min(seedRange.last, transformationRangeEnd)
+                        val newStart = minOverlap + transformationDifference
+                        val newEnd = maxOverlap + transformationDifference
+                        nextTransformedSeedRange.add(LongRange(newStart, newEnd))
+
+                        if (seedRange.first < transformationMap.second) {
+                            remainderSeedRange.add(LongRange(seedRange.first, transformationMap.second - 1))
+                        }
+
+                        if (seedRange.last > transformationRangeEnd) {
+                            remainderSeedRange.add(LongRange(transformationRangeEnd, seedRange.last))
                         }
                     }
                 }
-
-                if (seedRanges.any { it.contains(transformedValue) }) {
-                    return i.toLong()
-                }
+                seedRanges = ArrayList(remainderSeedRange)
             }
-            iteration++
+            seedRanges = ArrayList(remainderSeedRange)
+            seedRanges.addAll(nextTransformedSeedRange)
         }
+
+        return seedRanges.minOf { it.first }
     }
 
     val testInput = Path("src/input_files/Day05_test.txt").readText()
