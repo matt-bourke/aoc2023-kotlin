@@ -38,10 +38,13 @@ fun IntRange.overlaps(other: IntRange): Boolean {
 /**
  * Computes the product of all values in a list
  */
-fun <T> Iterable<T>.productOf(selector: (T, Int) -> Int): Int {
-    if (this.count() == 0) {
+fun <T> Collection<T>.productOf(selector: (T, Int) -> Int): Int {
+    if (this.isEmpty()) {
         return 0
     }
+
+    val s = ArrayList<String>()
+    s.isEmpty()
 
     var product = 1
     for ((i, element) in this.withIndex()) {
