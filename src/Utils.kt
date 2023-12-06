@@ -34,3 +34,18 @@ fun Any?.print(prefix: String? = null) = println("${ if (prefix != null) "$prefi
 fun IntRange.overlaps(other: IntRange): Boolean {
     return this.first <= other.last && other.first <= this.last
 }
+
+/**
+ * Computes the product of all values in a list
+ */
+fun <T> Iterable<T>.productOf(selector: (T, Int) -> Int): Int {
+    if (this.count() == 0) {
+        return 0
+    }
+
+    var product = 1
+    for ((i, element) in this.withIndex()) {
+        product *= selector(element, i)
+    }
+    return product
+}

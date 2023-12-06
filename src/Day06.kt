@@ -5,33 +5,24 @@ fun main() {
         val times = input[0].split(": ")[1].trim().split(" +".toRegex()).map { it.toInt() }
         val records = input[1].split(": ")[1].trim().split(" +".toRegex()).map { it.toInt() }
 
-        var errorMargin = 1
-        for ((i, time) in times.withIndex()) {
-            val correspondingRecord = records[i]
-
-            // solve quadratic
-            val b = -time.toFloat()
-            val c = correspondingRecord.toFloat()
+        return times.productOf { time, i ->
+            val b = time.toFloat()
+            val c = records[i].toFloat()
             val d = sqrt(b * b - 4 * c)
-            val xLower = (-b - d) / 2
-            val xUpper = (-b + d) / 2
-            val waysToWin = ceil(xUpper) - floor(xLower) - 1
-            errorMargin *= waysToWin.toInt()
+            val xLower = (b - d) / 2
+            val xUpper = (b + d) / 2
+            (ceil(xUpper) - floor(xLower) - 1).toInt()
         }
-
-        return errorMargin
     }
 
     fun part2(input: List<String>): Int {
         val time = input[0].split(": ")[1].trim().split(" +".toRegex()).joinToString(separator = "").toLong()
         val record = input[1].split(": ")[1].trim().split(" +".toRegex()).joinToString(separator = "").toLong()
-
-        // solve quadratic
-        val b = -time.toDouble()
+        val b = time.toDouble()
         val c = record.toDouble()
         val d = sqrt(b * b - 4 * c)
-        val xLower = (-b - d) / 2
-        val xUpper = (-b + d) / 2
+        val xLower = (b - d) / 2
+        val xUpper = (b + d) / 2
 
         return (ceil(xUpper) - floor(xLower) - 1).toInt()
     }
