@@ -8,167 +8,85 @@ enum class HandType {
     FiveOfAKind
 }
 
-fun getCardValue(c: Char): Int {
-    return when(c) {
-        'T' -> 0
-        'J' -> 1
-        'Q' -> 2
-        'K' -> 3
-        'A' -> 4
-        else -> 0
-    }
-}
-
-data class Hand(val cards: String, val handType: HandType, val bid: Int) : Comparable<Hand> {
+data class Hand(val cards: String, val handType: HandType, val bid: Int, val jokerEdition: Boolean) : Comparable<Hand> {
     override fun compareTo(other: Hand): Int {
         if (this.handType.ordinal != other.handType.ordinal) {
             return this.handType.ordinal - other.handType.ordinal
         }
-
-        for (i in 0..4) {
-            val card1 = this.cards[i]
-            val card2 = other.cards[i]
-            if (card1 != card2) {
-                 if (card1.isDigit() && card2.isDigit()) {
-                     return card1.digitToInt() - card2.digitToInt()
-                 }
-
-                if (card1.isDigit()) {
-                    return -1
-                }
-
-                if (card2.isDigit()) {
-                    return 1
-                }
-
-                return getCardValue(card1) - getCardValue(card2)
+        for ((card, otherCard) in this.cards.zip(other.cards)) {
+            if (card != otherCard) {
+                val jValue = if (this.jokerEdition) 0 else 11
+                return getCardValue(card, jValue) - getCardValue(otherCard, jValue)
             }
         }
-
         return 0
     }
 }
 
-fun getCardValueJokerEdition(c: Char): Int {
-    return when(c) {
-        'J' -> 0
-        'T' -> 1
-        'Q' -> 2
-        'K' -> 3
-        'A' -> 4
+fun getCardValue(c: Char, jValue: Int): Int {
+    return when (c) {
+        'T' -> 10
+        'J' -> jValue
+        'Q' -> 12
+        'K' -> 13
+        'A' -> 14
+        in '2'..'9' -> c.digitToInt()
         else -> 0
     }
 }
 
-data class HandJokerEdition(val cards: String, val handType: HandType, val bid: Int) : Comparable<HandJokerEdition> {
-    override fun compareTo(other: HandJokerEdition): Int {
-        if (this.handType.ordinal != other.handType.ordinal) {
-            return this.handType.ordinal - other.handType.ordinal
-        }
-
-        for (i in 0..4) {
-            val card1 = this.cards[i]
-            val card2 = other.cards[i]
-            if (card1 != card2) {
-                if (card1.isDigit() && card2.isDigit()) {
-                    return card1.digitToInt() - card2.digitToInt()
-                }
-
-                if (card1.isDigit()) {
-                    if (card2 == 'J') {
-                        return 1
-                    }
-                    return -1
-                }
-
-                if (card2.isDigit()) {
-                    if (card1 == 'J') {
-                        return -1
-                    }
-                    return 1
-                }
-
-                return getCardValueJokerEdition(card1) - getCardValueJokerEdition(card2)
-            }
-        }
-
-        return 0
-    }
-}
-
 fun getHandType(cardCounts: HashMap<Char, Int>): HandType {
-    if (cardCounts.values.any { v -> v == 5 }) {
-        return HandType.FiveOfAKind
-    } else if (cardCounts.values.any { v -> v == 4}) {
-        return HandType.FourOfAKind
-    } else if (cardCounts.values.any { v -> v == 3 } &&
-               cardCounts.values.any { v -> v == 2 }) {
-        return HandType.FullHouse
-    } else if (cardCounts.values.any { v -> v == 3 }) {
-        return HandType.ThreeOfAKind
-    } else if (cardCounts.values.count { v -> v == 2 } == 2) {
-        return HandType.TwoPair
-    } else if (cardCounts.values.count { v -> v == 2 } == 1) {
-        return HandType.OnePair
+    return when {
+        cardCounts.values.any { v -> v == 5 } -> HandType.FiveOfAKind
+        cardCounts.values.any { v -> v == 4 } -> HandType.FourOfAKind
+        cardCounts.values.any { v -> v == 3 } &&
+        cardCounts.values.any { v -> v == 2 } -> HandType.FullHouse
+        cardCounts.values.any { v -> v == 3 } -> HandType.ThreeOfAKind
+        cardCounts.values.count { v -> v == 2 } == 2 -> HandType.TwoPair
+        cardCounts.values.count { v -> v == 2 } == 1 -> HandType.OnePair
+        else -> HandType.HighCard
     }
-
-    return HandType.HighCard
 }
 
 fun getHandTypeWithJokers(cardCounts: HashMap<Char, Int>): HandType {
     val numJokers = cardCounts['J'] ?: 0
     cardCounts['J'] = 0
-
     val (maxKey, maxValue) = cardCounts.maxBy { it.value }
     cardCounts[maxKey] = maxValue + numJokers
-
     return getHandType(cardCounts)
 }
 
-
 fun main() {
     fun part1(input: List<String>): Int {
-        var hands = input.map {
+        val hands = input.map {
             val (cards, bid) = it.split(" ")
-
             val cardCounts = HashMap<Char, Int>()
             for (c in cards) {
                 cardCounts[c] = cardCounts.getOrPut(c) { 0 } + 1
             }
             val handType = getHandType(cardCounts)
-
-            Hand(cards, handType, bid.toInt())
+            Hand(cards, handType, bid.toInt(), false)
         }
 
-        hands = hands.sorted()
-        var sum = 0
-        hands.forEachIndexed { i, hand ->
-            sum += hand.bid * (i + 1)
+        return hands.sorted().sumOfIndexed { i, hand ->
+            hand.bid * (i + 1)
         }
-
-        return sum
     }
 
     fun part2(input: List<String>): Int {
-        var hands = input.map {
+        val hands = input.map {
             val (cards, bid) = it.split(" ")
-
             val cardCounts = HashMap<Char, Int>()
             for (c in cards) {
                 cardCounts[c] = cardCounts.getOrPut(c) { 0 } + 1
             }
             val handType = getHandTypeWithJokers(cardCounts)
-
-            HandJokerEdition(cards, handType, bid.toInt())
+            Hand(cards, handType, bid.toInt(), true)
         }
 
-        hands = hands.sorted()
-        var sum = 0
-        hands.forEachIndexed { i, hand ->
-            sum += hand.bid * (i + 1)
+        return hands.sorted().sumOfIndexed { i, hand ->
+            hand.bid * (i + 1)
         }
-
-        return sum
     }
 
     val testInput = readInput("Day07_test")

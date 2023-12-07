@@ -52,3 +52,14 @@ fun <T> Collection<T>.productOf(selector: (T, Int) -> Int): Int {
     }
     return product
 }
+
+/**
+ * Calculated sum of selector, providing index
+ */
+fun <T> Iterable<T>.sumOfIndexed(selector: (Int, T) -> Int): Int {
+    var sum = 0
+    for ((i, element) in this.withIndex()) {
+        sum += selector(i, element)
+    }
+    return sum
+}
