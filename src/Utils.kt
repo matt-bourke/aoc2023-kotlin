@@ -2,6 +2,7 @@ import java.math.BigInteger
 import java.security.MessageDigest
 import kotlin.io.path.Path
 import kotlin.io.path.readLines
+import kotlin.math.max
 import kotlin.system.exitProcess
 
 /**
@@ -62,4 +63,21 @@ fun <T> Iterable<T>.sumOfIndexed(selector: (Int, T) -> Int): Int {
         sum += selector(i, element)
     }
     return sum
+}
+
+/**
+ * Find 'Least Common Multiple' (LCM) of two numbers
+ */
+fun findLCM(x: Long, y: Long): Long {
+    val largest = max(x, y)
+    val upperBound = x * y
+    var currentLCM = largest
+    while (currentLCM <= upperBound) {
+        if (currentLCM % x == 0L && currentLCM % y == 0L) {
+            // both currentLCM divisible by both x and y => found result
+            break
+        }
+        currentLCM += largest
+    }
+    return currentLCM
 }
