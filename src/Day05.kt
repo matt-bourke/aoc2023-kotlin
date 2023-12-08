@@ -1,5 +1,3 @@
-import kotlin.io.path.Path
-import kotlin.io.path.readText
 import kotlin.math.max
 import kotlin.math.min
 
@@ -100,11 +98,11 @@ fun main() {
         return seedRanges.minOf { it.first }
     }
 
-    val testInput = Path("src/input_files/Day05_test.txt").readText()
+    val testInput = readInputRaw("Day05_test")
     check(part1(testInput).toInt() == 35)
     check(part2(testInput).toInt() == 46)
 
-    val input = Path("src/input_files/Day05.txt").readText()
+    val input = readInputRaw("Day05")
     part1(input).print("Part 1")
     part2(input).print("Part 2")
 }

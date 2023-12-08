@@ -2,6 +2,7 @@ import java.math.BigInteger
 import java.security.MessageDigest
 import kotlin.io.path.Path
 import kotlin.io.path.readLines
+import kotlin.io.path.readText
 import kotlin.math.max
 import kotlin.system.exitProcess
 
@@ -11,6 +12,18 @@ import kotlin.system.exitProcess
 fun readInput(name: String): List<String> {
     try {
         return Path("src/input_files/$name.txt").readLines()
+    } catch (e: Exception) {
+        System.err.println("[ ERROR ] Failed to open file: $name\n└╴(${e.javaClass})")
+        exitProcess(1)
+    }
+}
+
+/**
+ * Reads raw text from the given input txt file.
+ */
+fun readInputRaw(name: String): String {
+    try {
+        return Path("src/input_files/$name.txt").readText()
     } catch (e: Exception) {
         System.err.println("[ ERROR ] Failed to open file: $name\n└╴(${e.javaClass})")
         exitProcess(1)

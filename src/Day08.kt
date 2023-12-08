@@ -1,6 +1,3 @@
-import kotlin.io.path.Path
-import kotlin.io.path.readText
-
 fun main() {
     fun part1(input: String): Int {
         val (sequence, map) = input.split("\r\n\r\n")
@@ -15,12 +12,14 @@ fun main() {
 
         var steps = 0
         var currentLocation = "AAA"
+
         while (currentLocation != "ZZZ") {
             val selection = sequence[(steps % sequence.length)]
             when (selection) {
                 'L' -> currentLocation = locations.getValue(currentLocation).first
                 'R' -> currentLocation = locations.getValue(currentLocation).second
             }
+
             steps++
         }
 
@@ -40,14 +39,16 @@ fun main() {
 
         var currentLCM = 1L
         for (location in locations.keys.filter { it.endsWith('A') }) {
-            var currentLocation = location
             var steps = 0L
+            var currentLocation = location
+
             while (!currentLocation.endsWith('Z')) {
                 val selection = sequence[(steps % sequence.length.toLong()).toInt()]
                 when (selection) {
                     'L' -> currentLocation = locations.getValue(currentLocation).first
                     'R' -> currentLocation = locations.getValue(currentLocation).second
                 }
+
                 steps++
             }
             currentLCM = findLCM(currentLCM, steps)
@@ -56,12 +57,13 @@ fun main() {
         return currentLCM
     }
 
-    var testInput = Path("src/input_files/Day08_test.txt").readText()
+    var testInput = readInputRaw("Day08_Part1_test")
     check(part1(testInput) == 6)
-    testInput = Path("src/input_files/Day08_Part2_test.txt").readText()
+
+    testInput = readInputRaw("Day08_Part2_test")
     check(part2(testInput) == 6L)
 
-    val input = Path("src/input_files/Day08.txt").readText()
+    val input = readInputRaw("Day08")
     part1(input).print("Part 1")
     part2(input).print("Part 2")
 }
