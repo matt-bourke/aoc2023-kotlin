@@ -1,54 +1,26 @@
 fun main() {
     fun part1(input: List<String>): Int {
-        var sum = 0
-        for (line in input) {
-            val values = line.split(" ").map { it.toInt() }
-            var currentList = values
+        return input.sumOf { line ->
+            var currentList = line.split(" ").map { it.toInt() }
             val lastValues = ArrayList<Int>()
             while (!currentList.all { it == 0 }) {
-                val nextValues = ArrayList<Int>()
-                for (i in 1..<currentList.count()) {
-                    nextValues.add(currentList[i] - currentList[i-1])
-                }
                 lastValues.add(currentList.last())
-                currentList = nextValues
+                currentList = currentList.windowed(2).map { it[1] - it[0] }
             }
-
-            // backtrack
-            var prediction = 0
-            for (value in lastValues.reversed()) {
-                prediction += value
-            }
-            sum += prediction
+            lastValues.reversed().reduce { acc, i -> acc + i }
         }
-
-        return sum
     }
 
     fun part2(input: List<String>): Int {
-        var sum = 0
-        for (line in input) {
-            val values = line.split(" ").map { it.toInt() }
-            var currentList = values
+        return input.sumOf { line ->
+            var currentList = line.split(" ").map { it.toInt() }
             val firstValues = ArrayList<Int>()
             while (!currentList.all { it == 0 }) {
-                val nextValues = ArrayList<Int>()
-                for (i in 1..<currentList.count()) {
-                    nextValues.add(currentList[i] - currentList[i-1])
-                }
                 firstValues.add(currentList.first())
-                currentList = nextValues
+                currentList = currentList.windowed(2).map { it[1] - it[0] }
             }
-
-            // backtrack
-            var prediction = 0
-            for (value in firstValues.reversed()) {
-                prediction = value - prediction
-            }
-            sum += prediction
+            firstValues.reversed().reduce { acc, i -> i - acc }
         }
-
-        return sum
     }
 
     val testInput = readInput("Day09_test")
