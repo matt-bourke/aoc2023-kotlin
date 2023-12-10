@@ -1,85 +1,73 @@
-data class Pipe(val position: Pair<Int, Int>, var pipeType: Char)
 
 enum class Direction {
-    LEFT, UP, RIGHT, DOWN
+    NONE, LEFT, UP, RIGHT, DOWN
 }
 
-data class PathPipe(val position: Pair<Int, Int>, val pipeType: Char, val cameFrom: Direction)
+data class Pipe(val position: Pair<Int, Int>, var pipeType: Char, val cameFrom: Direction)
 
-fun PathPipe.findNextPipe(pipeMap: ArrayList<ArrayList<Pipe>>): PathPipe {
+fun Pipe.findNextPipe(pipeMap: ArrayList<ArrayList<Pipe>>): Pipe {
     val x = this.position.first
     val y = this.position.second
     return when (this.pipeType) {
         '-' -> {
             if (this.cameFrom == Direction.LEFT) {
                 val rightPipe = pipeMap[y][x + 1]
-                PathPipe(rightPipe.position, rightPipe.pipeType, Direction.LEFT)
+                Pipe(rightPipe.position, rightPipe.pipeType, Direction.LEFT)
             } else {
                 val leftPipe = pipeMap[y][x - 1]
-                PathPipe(leftPipe.position, leftPipe.pipeType, Direction.RIGHT)
+                Pipe(leftPipe.position, leftPipe.pipeType, Direction.RIGHT)
             }
         }
         '|' -> {
             if (this.cameFrom == Direction.UP) {
                 val downPipe = pipeMap[y + 1][x]
-                PathPipe(downPipe.position, downPipe.pipeType, Direction.UP)
+                Pipe(downPipe.position, downPipe.pipeType, Direction.UP)
             } else {
                 val upPipe = pipeMap[y - 1][x]
-                PathPipe(upPipe.position, upPipe.pipeType, Direction.DOWN)
+                Pipe(upPipe.position, upPipe.pipeType, Direction.DOWN)
             }
         }
         'L' -> {
             if (this.cameFrom == Direction.UP) {
                 val rightPipe = pipeMap[y][x + 1]
-                PathPipe(rightPipe.position, rightPipe.pipeType, Direction.LEFT)
+                Pipe(rightPipe.position, rightPipe.pipeType, Direction.LEFT)
             } else {
                 val upPipe = pipeMap[y - 1][x]
-                PathPipe(upPipe.position, upPipe.pipeType, Direction.DOWN)
+                Pipe(upPipe.position, upPipe.pipeType, Direction.DOWN)
             }
         }
         'J' -> {
             if (this.cameFrom == Direction.UP) {
                 val leftPipe = pipeMap[y][x - 1]
-                PathPipe(leftPipe.position, leftPipe.pipeType, Direction.RIGHT)
+                Pipe(leftPipe.position, leftPipe.pipeType, Direction.RIGHT)
             } else {
                 val upPipe = pipeMap[y - 1][x]
-                PathPipe(upPipe.position, upPipe.pipeType, Direction.DOWN)
+                Pipe(upPipe.position, upPipe.pipeType, Direction.DOWN)
             }
         }
         '7' -> {
             if (this.cameFrom == Direction.DOWN) {
                 val leftPipe = pipeMap[y][x - 1]
-                PathPipe(leftPipe.position, leftPipe.pipeType, Direction.RIGHT)
+                Pipe(leftPipe.position, leftPipe.pipeType, Direction.RIGHT)
             } else {
                 val downPipe = pipeMap[y + 1][x]
-                return PathPipe(downPipe.position, downPipe.pipeType, Direction.UP)
+                return Pipe(downPipe.position, downPipe.pipeType, Direction.UP)
             }
         }
         'F' -> {
             if (this.cameFrom == Direction.DOWN) {
                 val rightPipe = pipeMap[y][x + 1]
-                PathPipe(rightPipe.position, rightPipe.pipeType, Direction.LEFT)
+                Pipe(rightPipe.position, rightPipe.pipeType, Direction.LEFT)
             } else {
                 val downPipe = pipeMap[y + 1][x]
-                return PathPipe(downPipe.position, downPipe.pipeType, Direction.UP)
+                return Pipe(downPipe.position, downPipe.pipeType, Direction.UP)
             }
         }
-        else -> PathPipe(Pair(0, 0), '.', Direction.UP) // default yucky
+        else -> Pipe(Pair(0, 0), '.', Direction.UP) // default yucky
     }
 }
 
 typealias Pipes = ArrayList<Pipe>
-
-fun ArrayList<Pipes>.print() {
-    println()
-    for (pipes in this) {
-        for (pipe in pipes) {
-            print(pipe.pipeType)
-        }
-        println()
-    }
-    println()
-}
 
 fun ArrayList<Pipes>.get(pipe: Pipe, direction: Direction): Pipe? {
     return when (direction) {
@@ -111,26 +99,27 @@ fun ArrayList<Pipes>.get(pipe: Pipe, direction: Direction): Pipe? {
                 null
             }
         }
+        Direction.NONE -> throw Exception("None cannot exist here")
     }
 }
 
-fun getInitialPathPipes(pipes: ArrayList<Pipes>, startLocation: Pair<Int, Int>): Pair<PathPipe, PathPipe> {
+fun getInitialPathPipes(pipes: ArrayList<Pipes>, startLocation: Pair<Int, Int>): Pair<Pipe, Pipe> {
     val startPipe = pipes.flatten().single { it.position == startLocation }
-    var path1 = PathPipe(Pair(0, 0), '.', Direction.UP)
-    var path2 = PathPipe(Pair(0, 0), '.', Direction.UP)
+    var path1 = Pipe(Pair(0, 0), '.', Direction.UP)
+    var path2 = Pipe(Pair(0, 0), '.', Direction.UP)
 
     pipes.get(startPipe, Direction.LEFT)?.let { leftPipe ->
         if (leftPipe.pipeType in arrayOf('-', 'L', 'F')) {
-            path1 = PathPipe(leftPipe.position, leftPipe.pipeType, Direction.RIGHT)
+            path1 = Pipe(leftPipe.position, leftPipe.pipeType, Direction.RIGHT)
         }
     }
 
     pipes.get(startPipe, Direction.UP)?.let { upPipe ->
         if (upPipe.pipeType in arrayOf('|', '7', 'F')) {
             if (path1.pipeType == '.') {
-                path1 = PathPipe(upPipe.position, upPipe.pipeType, Direction.DOWN)
+                path1 = Pipe(upPipe.position, upPipe.pipeType, Direction.DOWN)
             } else {
-                path2 = PathPipe(upPipe.position, upPipe.pipeType, Direction.DOWN)
+                path2 = Pipe(upPipe.position, upPipe.pipeType, Direction.DOWN)
             }
         }
     }
@@ -138,9 +127,9 @@ fun getInitialPathPipes(pipes: ArrayList<Pipes>, startLocation: Pair<Int, Int>):
     pipes.get(startPipe, Direction.RIGHT)?.let { rightPipe ->
         if (rightPipe.pipeType in arrayOf('-', 'J', '7')) {
             if (path1.pipeType == '.') {
-                path1 = PathPipe(rightPipe.position, rightPipe.pipeType, Direction.LEFT)
+                path1 = Pipe(rightPipe.position, rightPipe.pipeType, Direction.LEFT)
             } else {
-                path2 = PathPipe(rightPipe.position, rightPipe.pipeType, Direction.LEFT)
+                path2 = Pipe(rightPipe.position, rightPipe.pipeType, Direction.LEFT)
             }
         }
     }
@@ -148,9 +137,9 @@ fun getInitialPathPipes(pipes: ArrayList<Pipes>, startLocation: Pair<Int, Int>):
     pipes.get(startPipe, Direction.DOWN)?.let { downPipe ->
         if (downPipe.pipeType in arrayOf('|', 'J', 'L')) {
             if (path1.pipeType == '.') {
-                path1 = PathPipe(downPipe.position, downPipe.pipeType, Direction.UP)
+                path1 = Pipe(downPipe.position, downPipe.pipeType, Direction.UP)
             } else {
-                path2 = PathPipe(downPipe.position, downPipe.pipeType, Direction.UP)
+                path2 = Pipe(downPipe.position, downPipe.pipeType, Direction.UP)
             }
         }
     }
@@ -165,7 +154,7 @@ fun main() {
         for (y in input.indices) {
             val pipeRow = Pipes()
             for (x in input[y].indices) {
-                pipeRow.add(Pipe(Pair(x, y), input[y][x]))
+                pipeRow.add(Pipe(Pair(x, y), input[y][x], Direction.NONE))
                 if (input[y][x] == 'S') {
                     start = Pair(x, y)
                 }
@@ -189,7 +178,7 @@ fun main() {
         for (y in input.indices) {
             val pipeRow = ArrayList<Pipe>()
             for (x in input[y].indices) {
-                pipeRow.add(Pipe(Pair(x, y), input[y][x]))
+                pipeRow.add(Pipe(Pair(x, y), input[y][x], Direction.NONE))
             }
             pipeMap.add(pipeRow)
         }
@@ -201,9 +190,9 @@ fun main() {
             for ((i, pipes) in row1.zip(row2).withIndex()) {
                 if (pipes.first.pipeType in arrayOf('|', 'F', '7', 'S') &&
                     pipes.second.pipeType in arrayOf('|', 'J', 'L', 'S')) {
-                    rowToInsert.add(Pipe(Pair(i, index + 1), '|'))
+                    rowToInsert.add(Pipe(Pair(i, index + 1), '|', Direction.NONE))
                 } else {
-                    rowToInsert.add(Pipe(Pair(i, index + 1), '.'))
+                    rowToInsert.add(Pipe(Pair(i, index + 1), '.', Direction.NONE))
                 }
             }
             pipeMap.add(2 * index + 1, rowToInsert)
@@ -213,9 +202,9 @@ fun main() {
             for ((index, pipes) in pipeRow.windowed(2).withIndex()) {
                 if (pipes[0].pipeType in arrayOf('-', 'F', 'L', 'S') &&
                     pipes[1].pipeType in arrayOf('-', 'J', '7', 'S')) {
-                    pipeRow.add(2 * index + 1, Pipe(Pair(index, row), '-'))
+                    pipeRow.add(2 * index + 1, Pipe(Pair(index, row), '-', Direction.NONE))
                 } else {
-                    pipeRow.add(2 * index + 1, Pipe(Pair(index, row), '.'))
+                    pipeRow.add(2 * index + 1, Pipe(Pair(index, row), '.', Direction.NONE))
                 }
             }
         }
@@ -225,7 +214,7 @@ fun main() {
         for ((y, pipeRow) in pipeMap.withIndex()) {
             val remappedPipeRow = ArrayList<Pipe>()
             for ((x, pipe) in pipeRow.withIndex()) {
-                remappedPipeRow.add(Pipe(Pair(x, y), pipe.pipeType))
+                remappedPipeRow.add(Pipe(Pair(x, y), pipe.pipeType, Direction.NONE))
                 if (pipe.pipeType == 'S') {
                     start = Pair(x, y)
                 }
