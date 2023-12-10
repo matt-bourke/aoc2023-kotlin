@@ -102,6 +102,24 @@ fun ArrayList<Pipes>.get(pipe: Pipe, direction: Direction): Pipe? {
     }
 }
 
+fun ArrayList<Pipes>.printMap() {
+    for (pipeRow in this) {
+        for (pipe in pipeRow) {
+            print(when (pipe.pipeType) {
+                'S' -> '╬'
+                '-' -> '═'
+                '|' -> '║'
+                'F' -> '╔'
+                'L' -> '╚'
+                'J' -> '╝'
+                '7' -> '╗'
+                else -> ' '
+            })
+        }
+        println()
+    }
+}
+
 fun getInitialPathPipes(pipes: ArrayList<Pipes>, startLocation: Pair<Int, Int>): Pair<Pipe, Pipe> {
     val startPipe = pipes.flatten().single { it.position == startLocation }
     var path1 = Pipe(Pair(0, 0), '.', Direction.UP)
@@ -161,6 +179,8 @@ fun main() {
             pipes.add(pipeRow)
         }
 
+        pipes.printMap()
+
         var (path1, path2) = getInitialPathPipes(pipes, start)
         var steps = 1
         while (path1.position != path2.position) {
@@ -181,6 +201,8 @@ fun main() {
             }
             pipeMap.add(pipeRow)
         }
+
+        pipeMap.printMap()
 
         for ((index, rows) in pipeMap.windowed(2).withIndex()) {
             val row1 = rows[0]
