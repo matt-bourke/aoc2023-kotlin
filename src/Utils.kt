@@ -107,11 +107,9 @@ fun manhattan(x1: Int, y1: Int, x2: Int, y2: Int): Int {
  * Returns inputs as pair where first = min and second = max
  */
 fun findMinMax(a: Int, b: Int): Pair<Int, Int> {
-    var min = a
-    var max = b
-    if (b < min) {
-        min = b
-        max = a
+    return if (b < a) {
+        Pair(b, a)
+    } else {
+        Pair(a, b)
     }
-    return Pair(min, max)
 }
