@@ -16,30 +16,16 @@ fun findGalaxyDistanceSum(input: List<String>, expansionConstant: Int): Long {
         spaceGrid.add(spaceRow)
     }
 
-    val rowsToExpand = ArrayList<Int>()
-    for ((index, row) in spaceGrid.withIndex()) {
-        if (row.all { !it.isGalaxy }) {
-            rowsToExpand.add(index)
-        }
-    }
-
-    val colsToExpand = ArrayList<Int>()
-    for (i in spaceGrid.first().indices) {
-        val column = spaceGrid.map { it[i] }
-        if (column.all { !it.isGalaxy }) {
-            colsToExpand.add(i)
-        }
-    }
-
+    val rowsToExpand = spaceGrid.indices.filter { i -> spaceGrid[i].none { s -> s.isGalaxy } }
+    val colsToExpand = spaceGrid.first().indices.filter { i -> spaceGrid.map { it[i] }.none { s -> s.isGalaxy } }
     val galaxies = spaceGrid.flatten().filter { it.isGalaxy }
-    val expand = expansionConstant - 1
 
     return galaxies.dropLast(1).withIndex().sumOf { (i, galaxy) ->
         galaxies.drop(i).sumOf { galaxy2 ->
             val distance = manhattan(galaxy.x, galaxy.y, galaxy2.x, galaxy2.y)
             val (rangeX, rangeY) = galaxy.rangeFrom(galaxy2)
-            val numberOfExpansionsCrossedX = (colsToExpand.count { it in rangeX } * expand)
-            val numberOfExpansionsCrossedY = (rowsToExpand.count { it in rangeY } * expand)
+            val numberOfExpansionsCrossedX = (colsToExpand.count { it in rangeX } * (expansionConstant - 1))
+            val numberOfExpansionsCrossedY = (rowsToExpand.count { it in rangeY } * (expansionConstant - 1))
             (distance + numberOfExpansionsCrossedX + numberOfExpansionsCrossedY).toLong()
         }
     }
