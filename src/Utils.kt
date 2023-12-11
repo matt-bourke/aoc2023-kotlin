@@ -3,6 +3,7 @@ import java.security.MessageDigest
 import kotlin.io.path.Path
 import kotlin.io.path.readLines
 import kotlin.io.path.readText
+import kotlin.math.abs
 import kotlin.math.max
 import kotlin.system.exitProcess
 
@@ -93,4 +94,24 @@ fun findLCM(x: Long, y: Long): Long {
         currentLCM += largest
     }
     return currentLCM
+}
+
+/**
+ * Find manhattan distance between two points
+ */
+fun manhattan(x1: Int, y1: Int, x2: Int, y2: Int): Int {
+    return abs(y2 - y1) + abs(x2 - x1)
+}
+
+/**
+ * Returns inputs as pair where first = min and second = max
+ */
+fun findMinMax(a: Int, b: Int): Pair<Int, Int> {
+    var min = a
+    var max = b
+    if (b < min) {
+        min = b
+        max = a
+    }
+    return Pair(min, max)
 }
