@@ -3,3 +3,5 @@
 build
 src/**/*.txt
 src/**/*.jar
+jars/
+*.bat
