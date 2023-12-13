@@ -1,6 +1,4 @@
-data class Spot(val x: Int, val y: Int, val isAsh: Boolean)
-//typealias Spot = Char
-typealias GroundRow = ArrayList<Spot>
+typealias GroundRow = ArrayList<Char>
 
 fun getReflectionIndex(ground: ArrayList<GroundRow>): Int {
     var hasHorizontalReflection: Boolean
@@ -11,7 +9,7 @@ fun getReflectionIndex(ground: ArrayList<GroundRow>): Int {
         val rowsBelow = ground.subList(i, ground.size)
 
         for (sides in rowsAbove.zip(rowsBelow)) {
-            if (sides.first.map { s -> s.isAsh } != sides.second.map { s -> s.isAsh }) {
+            if (sides.first != sides.second) {
                 hasHorizontalReflection = false
                 break
             }
@@ -27,7 +25,6 @@ fun getReflectionIndex(ground: ArrayList<GroundRow>): Int {
 }
 
 fun getReflectionIndexWithSmudge(ground: ArrayList<GroundRow>): Int {
-    // find horizontal reflection
     var hasFixedSmudge: Boolean
     var hasHorizontalReflectionWithSmudge: Boolean
     var horizontalReflectionWithSmudgeIndex = 0
@@ -39,11 +36,10 @@ fun getReflectionIndexWithSmudge(ground: ArrayList<GroundRow>): Int {
 
         rows@ for (sides in rowsAbove.zip(rowsBelow)) {
             for (spots in sides.first.zip(sides.second)) {
-                if (spots.first.isAsh != spots.second.isAsh) {
+                if (spots.first != spots.second) {
                     if (!hasFixedSmudge) {
                         hasFixedSmudge = true
                     } else {
-                        // can't be reflection
                         hasHorizontalReflectionWithSmudge = false
                         break@rows
                     }
@@ -65,10 +61,10 @@ fun main() {
         val grounds = input.split("\r\n\r\n")
         return grounds.sumOf {
             val ground = ArrayList<GroundRow>()
-            for ((y, row) in it.split("\r\n").withIndex()) {
+            for (row in it.split("\r\n")) {
                 val groundRow = GroundRow()
-                for ((x, s) in row.withIndex()) {
-                    groundRow.add(Spot(x, y, s == '#'))
+                for (s in row) {
+                    groundRow.add(s)
                 }
                 ground.add(groundRow)
             }
@@ -83,11 +79,10 @@ fun main() {
         val grounds = input.split("\r\n\r\n")
         return grounds.sumOf {
             val ground = ArrayList<GroundRow>()
-            for ((y, row) in it.split("\r\n").withIndex()) {
+            for (row in it.split("\r\n")) {
                 val groundRow = GroundRow()
-                for ((x, s) in row.withIndex()) {
-                    val spot = Spot(x, y, s == '#')
-                    groundRow.add(spot)
+                for (s in row) {
+                    groundRow.add(s)
                 }
                 ground.add(groundRow)
             }
