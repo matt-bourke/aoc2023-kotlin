@@ -1,6 +1,6 @@
 typealias GroundRow = ArrayList<Char>
 
-fun getReflectionIndex(ground: ArrayList<GroundRow>): Int {
+fun getReflectionIndex(ground: List<GroundRow>): Int {
     var hasHorizontalReflection: Boolean
     var horizontalReflectionIndex = 0
     for (i in 1..<ground.size) {
@@ -24,7 +24,7 @@ fun getReflectionIndex(ground: ArrayList<GroundRow>): Int {
     return horizontalReflectionIndex
 }
 
-fun getReflectionIndexWithSmudge(ground: ArrayList<GroundRow>): Int {
+fun getReflectionIndexWithSmudge(ground: List<GroundRow>): Int {
     var hasFixedSmudge: Boolean
     var hasHorizontalReflectionWithSmudge: Boolean
     var horizontalReflectionWithSmudgeIndex = 0

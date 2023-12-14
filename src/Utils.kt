@@ -115,7 +115,7 @@ fun findMinMax(a: Int, b: Int): Pair<Int, Int> {
 }
 
 
-inline fun<T, reified U : List<T>> ArrayList<U>.transpose(): ArrayList<U> {
+inline fun<T, reified U : List<T>> List<U>.transpose(): List<U> {
     val transposed = ArrayList<U>()
     for (col in this.first().indices) {
         val transposedCol = ArrayList<T>()
