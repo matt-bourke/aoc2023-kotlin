@@ -128,3 +128,23 @@ inline fun<T, reified U : List<T>> List<U>.transpose(): List<U> {
     }
     return transposed
 }
+
+fun List<String>.transpose(): ArrayList<String> {
+    val transposed = ArrayList<String>()
+    for (col in this.first().indices) {
+        val transposedCol = ArrayList<Char>()
+        for (entry in this.map { it[col] }) {
+            transposedCol.add(entry)
+        }
+        transposed.add(transposedCol.joinToString(""))
+    }
+    return transposed
+}
+
+fun List<String>.flip(): ArrayList<String> {
+    val flipped = ArrayList<String>()
+    for (entry in this) {
+        flipped.add(entry.reversed())
+    }
+    return flipped
+}
