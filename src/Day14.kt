@@ -47,10 +47,7 @@ fun main() {
             }
 
             val originalPlatform = platform
-            platform = platform.tiltNorth()
-            platform = platform.tiltWest()
-            platform = platform.tiltSouth()
-            platform = platform.tiltEast()
+            platform = platform.tiltNorth().tiltWest().tiltSouth().tiltEast()
             memo[originalPlatform] = Pair(platform, n)
             n++
         }
