@@ -1,10 +1,5 @@
 fun hash(input: String): Int {
-    return input.fold(0) { acc, i ->
-        var x = acc + i.code
-        x *= 17
-        x %= 256
-        x
-    }
+    return input.fold(0) { acc, i ->((acc + i.code) * 17) % 256 }
 }
 
 fun main() {
@@ -13,7 +8,8 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        val hashMap = ArrayList<ArrayList<Pair<String, Int>>>()
+        data class Lens(val label: String, var focalLength: Int)
+        val hashMap = ArrayList<ArrayList<Lens>>()
         for (i in 0..<256) {
             hashMap.add(ArrayList())
         }
@@ -22,39 +18,22 @@ fun main() {
             if (element.endsWith("-")) {
                 val label = element.substring(0, element.length - 1)
                 val boxNumber = hash(label)
-                var indexToRemove = -1
-                for ((index, lens) in hashMap[boxNumber].withIndex()) {
-                    if (lens.first == label) {
-                        indexToRemove = index
-                        break
-                    }
-                }
-                if (indexToRemove > -1) {
-                    hashMap[boxNumber].removeAt(indexToRemove)
-                }
+                hashMap[boxNumber].removeIf { it.label == label }
             } else {
                 val (label, value) = element.split("=")
                 val boxNumber = hash(label)
-                var updated = false
-                var lens: Pair<String, Int>
-                for (l in hashMap[boxNumber].indices) {
-                    lens = hashMap[boxNumber][l]
-                    if (lens.first == label) {
-                        lens = Pair(lens.first, value.toInt())
-                        hashMap[boxNumber][l] = lens
-                        updated = true
-                    }
-                }
-
-                if (!updated) {
-                    hashMap[boxNumber].add(Pair(label, value.toInt()))
+                val index = hashMap[boxNumber].indexOfFirst { it.label == label }
+                if (index > -1) {
+                    hashMap[boxNumber][index].focalLength = value.toInt()
+                } else {
+                    hashMap[boxNumber].add(Lens(label, value.toInt()))
                 }
             }
         }
 
         return hashMap.sumOfIndexed { i, box ->
             box.sumOfIndexed { j, lens ->
-                (i + 1) * (j + 1) * lens.second
+                (i + 1) * (j + 1) * lens.focalLength
             }
         }
     }
