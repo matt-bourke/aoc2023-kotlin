@@ -1,80 +1,76 @@
-data class Tile(val x: Int, val y: Int, val tileType: Char, val beams: HashSet<Direction>)
+data class Beam(val x: Int, val y: Int, val direction: Direction)
+data class Tile(val x: Int, val y: Int, val tileType: Char)
 typealias TileRow = ArrayList<Tile>
 typealias TileMap = ArrayList<ArrayList<Tile>>
 
-fun TileMap.reset() = this.flatten().forEach { tile -> tile.beams.clear() }
-
-fun TileMap.get(current: Tile, direction: Direction): Tile? {
+fun TileMap.getNext(current: Beam, direction: Direction): Beam? {
     return when (direction) {
-        Direction.UP -> if (current.y > 0) this[current.y - 1][current.x] else null
-        Direction.DOWN ->  if (current.y < this.size - 1) this[current.y + 1][current.x] else null
-        Direction.LEFT -> if (current.x > 0) this[current.y][current.x - 1] else null
-        Direction.RIGHT -> if (current.x < this.first().size - 1) this[current.y][current.x + 1] else null
+        Direction.UP -> if (current.y > 0) Beam(current.x, current.y - 1, direction) else null
+        Direction.DOWN ->  if (current.y < this.size - 1) Beam(current.x, current.y + 1, direction) else null
+        Direction.LEFT -> if (current.x > 0) Beam(current.x - 1, current.y, direction) else null
+        Direction.RIGHT -> if (current.x < this.first().size - 1) Beam(current.x + 1, current.y, direction) else null
         else -> throw Exception("no valid direction")
     }
 }
 
-fun TileMap.processTile(tile: Tile, direction: Direction, explored: HashSet<Tile>, unexplored: ArrayList<Tile>) {
-    val next = this.get(tile, direction)
+fun TileMap.processBeam(beam: Beam, direction: Direction, explored: HashSet<Beam>, unexplored: ArrayList<Beam>) {
+    val next = this.getNext(beam, direction)
     if (next != null) {
-        next.beams.add(direction)
         if (!explored.contains(next)) {
             unexplored.add(next)
         }
     }
 }
 
-fun calculateEnergy(tileMap: TileMap, start: Tile): Int {
-    val explored = HashSet<Tile>()
-    val unexplored = ArrayList<Tile>()
+fun calculateEnergy(tileMap: TileMap, start: Beam): Int {
+    val explored = HashSet<Beam>()
+    val unexplored = ArrayList<Beam>()
     unexplored.add(start)
 
     var currentDirection: Direction
     while (unexplored.isNotEmpty()) {
-        val tile = unexplored.removeAt(0)
-        for (beam in tile.beams) {
-            currentDirection = beam
-            when (tile.tileType) {
-                '.' -> tileMap.processTile(tile, currentDirection, explored, unexplored)
-                '/' -> {
-                    currentDirection = when (currentDirection) {
-                        Direction.UP -> Direction.RIGHT
-                        Direction.DOWN -> Direction.LEFT
-                        Direction.LEFT -> Direction.DOWN
-                        Direction.RIGHT -> Direction.UP
-                        else -> throw Exception("no direction")
-                    }
-                    tileMap.processTile(tile, currentDirection, explored, unexplored)
+        val beam = unexplored.removeFirst()
+        currentDirection = beam.direction
+        when (tileMap[beam.y][beam.x].tileType) {
+            '.' -> tileMap.processBeam(beam, currentDirection, explored, unexplored)
+            '/' -> {
+                currentDirection = when (currentDirection) {
+                    Direction.UP -> Direction.RIGHT
+                    Direction.DOWN -> Direction.LEFT
+                    Direction.LEFT -> Direction.DOWN
+                    Direction.RIGHT -> Direction.UP
+                    else -> throw Exception("no direction")
                 }
-                '\\' -> {
-                    currentDirection = when (currentDirection) {
-                        Direction.UP -> Direction.LEFT
-                        Direction.DOWN -> Direction.RIGHT
-                        Direction.LEFT -> Direction.UP
-                        Direction.RIGHT -> Direction.DOWN
-                        else -> throw Exception("no direction")
-                    }
-                    tileMap.processTile(tile, currentDirection, explored, unexplored)
+                tileMap.processBeam(beam, currentDirection, explored, unexplored)
+            }
+            '\\' -> {
+                currentDirection = when (currentDirection) {
+                    Direction.UP -> Direction.LEFT
+                    Direction.DOWN -> Direction.RIGHT
+                    Direction.LEFT -> Direction.UP
+                    Direction.RIGHT -> Direction.DOWN
+                    else -> throw Exception("no direction")
                 }
-                '-' -> {
-                    if (currentDirection == Direction.UP || currentDirection == Direction.DOWN) {
-                        tileMap.processTile(tile, Direction.LEFT, explored, unexplored)
-                        tileMap.processTile(tile, Direction.RIGHT, explored, unexplored)
-                    } else {
-                        tileMap.processTile(tile, currentDirection, explored, unexplored)
-                    }
-                }
-                '|' -> {
-                    if (currentDirection == Direction.LEFT || currentDirection == Direction.RIGHT) {
-                        tileMap.processTile(tile, Direction.UP, explored, unexplored)
-                        tileMap.processTile(tile, Direction.DOWN, explored, unexplored)
-                    } else {
-                        tileMap.processTile(tile, currentDirection, explored, unexplored)
-                    }
+                tileMap.processBeam(beam, currentDirection, explored, unexplored)
+            }
+            '-' -> {
+                if (currentDirection == Direction.UP || currentDirection == Direction.DOWN) {
+                    tileMap.processBeam(beam, Direction.LEFT, explored, unexplored)
+                    tileMap.processBeam(beam, Direction.RIGHT, explored, unexplored)
+                } else {
+                    tileMap.processBeam(beam, currentDirection, explored, unexplored)
                 }
             }
-            explored.add(tile)
+            '|' -> {
+                if (currentDirection == Direction.LEFT || currentDirection == Direction.RIGHT) {
+                    tileMap.processBeam(beam, Direction.UP, explored, unexplored)
+                    tileMap.processBeam(beam, Direction.DOWN, explored, unexplored)
+                } else {
+                    tileMap.processBeam(beam, currentDirection, explored, unexplored)
+                }
+            }
         }
+        explored.add(beam)
     }
 
     val uniqueExplored = HashSet<Pair<Int, Int>>()
@@ -91,14 +87,12 @@ fun main() {
         for ((y, line) in input.withIndex()) {
             val row = TileRow()
             for ((x, tile) in line.withIndex()) {
-                row.add(Tile(x, y, tile, HashSet()))
+                row.add(Tile(x, y, tile))
             }
             tileMap.add(row)
         }
 
-        val start = tileMap[0][0]
-        start.beams.add(Direction.RIGHT)
-
+        val start = Beam(0, 0, Direction.RIGHT)
         return calculateEnergy(tileMap, start)
     }
 
@@ -107,46 +101,24 @@ fun main() {
         for ((y, line) in input.withIndex()) {
             val row = TileRow()
             for ((x, tile) in line.withIndex()) {
-                row.add(Tile(x, y, tile, HashSet()))
+                row.add(Tile(x, y, tile))
             }
             tileMap.add(row)
         }
 
-        var maxEnergised = 0
-        for (tile in tileMap.first()) {
-            tile.beams.add(Direction.DOWN)
-            val energy = calculateEnergy(tileMap, tile)
-            if (energy > maxEnergised) {
-                maxEnergised = energy
-            }
-            tileMap.reset()
+        val startingBeams = ArrayList<Beam>()
+        for (x in tileMap.first().indices) {
+            startingBeams.add(Beam(x, 0, Direction.DOWN))
+            startingBeams.add(Beam(x, tileMap.size - 1, Direction.UP))
         }
-        for (tile in tileMap.last()) {
-            tile.beams.add(Direction.UP)
-            val energy = calculateEnergy(tileMap, tile)
-            if (energy > maxEnergised) {
-                maxEnergised = energy
-            }
-            tileMap.reset()
-        }
-        for (tile in tileMap.map { it[0] }) {
-            tile.beams.add(Direction.RIGHT)
-            val energy = calculateEnergy(tileMap, tile)
-            if (energy > maxEnergised) {
-                maxEnergised = energy
-            }
-            tileMap.reset()
-        }
-        for (tile in tileMap.map { it[tileMap.first().size - 1] }) {
-            tile.beams.add(Direction.LEFT)
-            val energy = calculateEnergy(tileMap, tile)
-            if (energy > maxEnergised) {
-                maxEnergised = energy
-            }
-            tileMap.reset()
+        for (y in tileMap.indices) {
+            startingBeams.add(Beam(0, y, Direction.RIGHT))
+            startingBeams.add(Beam(tileMap.first().size - 1, y, Direction.LEFT))
         }
 
-        return maxEnergised
+        return startingBeams.maxOfOrNull { start ->
+            calculateEnergy(tileMap, start)
+        }!!
     }
 
     val testInput = readInput("Day16_test")
