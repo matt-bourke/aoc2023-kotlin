@@ -52,7 +52,7 @@ fun main() {
         }
     }
 
-    fun parse(input: List<String>) : List<Block> {
+    fun parse(input: List<String>): List<Block> {
         return input.map { line ->
             val (start, end) = line.split("~")
             val (sx, sy, sz) = start.split(",").map { it.toInt() }
@@ -79,11 +79,19 @@ fun main() {
 
         val cascades = HashMap<Block, Int>()
         val markedForDestruction = HashSet<Block>()
-        for (block in blocks) {
+        val sortedBlocks = blocks.sortedBy { it.start.z }
+        for (block in sortedBlocks) {
             markedForDestruction.add(block)
-            for (above in blocks.filter { it.start.z > block.end.z }) {
-                if (above.getSupports(blocks).all { markedForDestruction.contains(it) }) {
+            var lastZMarked = block.end.z + 1
+            for (above in sortedBlocks.filter { it.start.z > block.end.z }) {
+                if (above.start.z > lastZMarked) break
+
+                if (above.getSupports(sortedBlocks).all { markedForDestruction.contains(it) }) {
                     markedForDestruction.add(above)
+
+                    if (above.end.z >= lastZMarked) {
+                        lastZMarked = above.end.z + 1
+                    }
                 }
             }
             cascades[block] = markedForDestruction.size - 1
