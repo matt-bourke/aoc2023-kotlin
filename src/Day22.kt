@@ -2,9 +2,9 @@ fun main() {
     data class Point3D(var x: Int, var y: Int, var z: Int)
     data class Block(val start: Point3D, val end: Point3D)
     fun Block.overlaps(other: Block): Boolean {
-        for (blockX in other.start.x..other.end.x) {
-            for (x in start.x..end.x) {
-                for (y in start.y..end.y) {
+        for (x in start.x..end.x) {
+            for (y in start.y..end.y) {
+                for (blockX in other.start.x..other.end.x) {
                     for (blockY in other.start.y..other.end.y) {
                         if (blockX == x && blockY == y) {
                             return true
