@@ -71,18 +71,18 @@ fun main() {
 
             Diagramming this out, we can see most grid tiles are fully filled, but alternate the spots available.
             We also see that the diagonals are filled between the midpoints of 2 adjacent sides.
-            This means there are 13 unique files that can be formed.
-            Extending the grid to 5x5 is computationally sane, and give us a sample of each unique tile.
+            This means there are 13 unique tiles that can be formed.
+            Extending the grid to 5x5 is computationally sane (but still slow), and give us a sample of each unique tile.
 
-            We can also calculate the number of each unique tile.
+            We can also calculate the number (frequency) of each unique tile.
             The number of completely filled in tiles = n - 2 + 2 * ((n - 3) / 2) ^ 2
             Out of this, the number of 'base' filled tiles = ((n - 3) / 2) * ((n - 1)) / 2) - ((n - 3) / 2)
             Then the number of 'alt' filled tiles = (number of completely filled in tiles - number of 'base' filled tiles)
-            The number of 'chunky' diagonals = (n - 3)/2 for each diagonal
-            The 'smol' diagonals = (n - 1)/2 for each diagonal
+            The number of 'chunky' diagonals = (n - 3)/2 on each diagonal
+            The 'smol' diagonals = (n - 1)/2 on each diagonal
             4 corner pieces
 
-            Using the 5x5 version to find how many spots are available for each type of tile.
+            The 5x5 version is used to find how many spots are available for each type of tile.
             Finally, we just have to multiply the number of spots in each tile type by the frequency of that tile.
             Summing all that up gives us the answer.
          */
